@@ -1,7 +1,39 @@
+
+export type dbFunction = getDBRequest | fetchDB | pipeDBRequest
+
+export const getByIds = async (
+	env: Env, 
+	dbFunc: dbFunction, 
+	ids: string[]
+) => getByKeyAndValues(env, dbFunc, 'id', ids);
+
+export const getById = async (
+	env: Env, 
+	dbFunc: dbFunction, 
+	id: string
+) => {
+  const [item] = await getByIds(env, dbFunc, [id]);
+  return item || {};
+};
+
+export const getByKeyAndValues = async (
+	env: Env, 
+	dbFunc: dbFunction, 
+	key: string, 
+	values: string[]
+) => dbFunc(
+	env,
+  `select * from _ where ${key} in [${values
+    .map((i, index) => '$'+index)
+    .join(',')}]`,
+ 	args
+);
+
 export const getDBRequest = async (
   env, 
   sql, 
-  args = []
+  args = [],
+  params = {}
 ) => {
   let url = env.QUERY_SERVICE_URL
   let hash = env.PUBLIC_PARTY_AUTH
@@ -18,7 +50,8 @@ export const getDBRequest = async (
         args,
         "timeout":"2s",
         "scan_consistency":"not_bounded",
-        "query_context":"default:starpy2._default"
+        "query_context":"default:starpy2._default",
+	      ...params
       })
     }
   const response = await fetch(url, params)
@@ -28,7 +61,8 @@ export const getDBRequest = async (
 export const fetchDB = async (
   env, 
   sql, 
-  args = []
+  args = [],
+  params = {}
 ) => {
   let url = env.QUERY_SERVICE_URL
   let hash = env.PUBLIC_PARTY_AUTH
@@ -45,7 +79,8 @@ export const fetchDB = async (
         args,
         "timeout":"2s",
         "scan_consistency":"not_bounded",
-        "query_context":"default:starpy2._default"
+        "query_context":"default:starpy2._default",
+	      ...params
       })
     }
   return fetch(url, params)
@@ -54,7 +89,8 @@ export const fetchDB = async (
 export const pipeDBRequest = async (
 	env, 
 	sql, 
-	args = []
+	args = [],
+  params = {}
 ) => {
   let url = env.QUERY_SERVICE_URL
   let hash = env.PUBLIC_PARTY_AUTH
@@ -67,11 +103,12 @@ export const pipeDBRequest = async (
     },
     body:JSON.stringify({
       "statement":sql,
-      "pretty":true,
+      "pretty":false,
       args,
       "timeout":"2s",
       "scan_consistency":"not_bounded",
-      "query_context":"default:starpy2._default"
+      "query_context":"default:starpy2._default",
+      ...params
     })
   }
 

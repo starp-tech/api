@@ -12,7 +12,9 @@ import {
 } from './socket'
 
 import {
-	pipeInstantPartyData
+	pipeInstantPartyData,
+	processFolderRequest,
+	processFindRequest
 } from './db'
 
 export default {
@@ -21,13 +23,21 @@ export default {
 		env: Env,
 		ctx: ExecutionContext
 	): Promise<Response> {
-		console.info(request.url)
+
 	  if (request.headers.get("Upgrade") === "websocket") {
 	  	return setUpSocket(request, env)
 	  }
 
 	  if (request.url.search("party-one") > -1) {
 	  	return pipeInstantPartyData(request, env)
+	  }
+
+	  if (request.url.search("find") > -1) {
+	  	return processFindRequest(request, env)
+	  }
+
+	  if (request.url.search("folder") > -1) {
+	  	return processFolderRequest(request, env)
 	  }
 
 		const res = await parseCookie({request, env}) 
