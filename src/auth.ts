@@ -1,25 +1,37 @@
-import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth'
 import * as jose from 'jose'
-
-export let firebaseConfig:any;
-export let firebaseApp:any;
 const pubKeyUrl = 
 	"https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com"
 
 export const COOKIE_NAME = '__peerAuthToken';
 
-const createConfig = async (env:Env) => {
-	const conf = {
-	  apiKey: env.AUTH_API_KEY,
-	  authDomain: env.AUTH_DOMAIN,
-	  projectId: env.AUTH_PROJECT_ID,
-	  storageBucket: env.AUTH_STORAGE_BUCKET,
-	  messagingSenderId: env.AUTH_MESSAGING_SENDER_ID,
-	  appId: env.AUTH_APP_ID,
-	  measurementId: env.AUTH_MESUAREMENT_ID
-	};
-	return conf
+const getCookie = (cookieString, key) => {
+  if (cookieString) {
+    const allCookies = cookieString.split("; ")
+    const targetCookie = allCookies.find(cookie => cookie.includes(key))
+    if (targetCookie) {
+      const [_, value] = targetCookie.split("=")
+      return value
+    }
+  }
+  return null
+}
+
+export const parseCookie = async ({request, env}) => {
+	const cookieString = request.headers.get("Cookie")
+	const authToken = getCookie(cookieString, COOKIE_NAME)
+	if(authToken) {
+		const data = await getTokenData(authToken)
+		if(data.payload)
+			return new Response(
+				JSON.stringify(
+					{
+						...(data.payload), 
+						fromCookie:true
+					}
+				)
+			)
+		else return null
+	}
 }
 
 export const getTokenData = async (authToken) => {

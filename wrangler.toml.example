@@ -1,0 +1,10 @@
+name = "auth-backend"
+main = "src/index.ts"
+compatibility_date = "2022-12-30"
+node_compat = true
+
+[vars]
+PUBLIC_PARTY_AUTH=""
+PARTY_MEDIA_URL=""
+QUERY_SERVICE_URL=""
+PUBLIC_FEED_PATH=""

@@ -7,3 +7,5 @@ src/**/*.js
 dist
 
 .DS_Store
+
+wrangler.toml
