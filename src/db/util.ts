@@ -4,36 +4,42 @@ export type dbFunction = getDBRequest | fetchDB | pipeDBRequest
 export const getByIds = async (
 	env: Env, 
 	dbFunc: dbFunction, 
-	ids: string[]
-) => getByKeyAndValues(env, dbFunc, 'id', ids);
+	ids: string[],
+	dbName: string,
+	extraParams = {}
+) => getByKeyAndValues(env, dbFunc, 'id', ids, dbName, extraParams);
 
 export const getById = async (
 	env: Env, 
 	dbFunc: dbFunction, 
-	id: string
-) => {
-  const [item] = await getByIds(env, dbFunc, [id]);
-  return item || {};
-};
+	id: string,
+	dbName: string,
+	extraParams = {}
+) => getByIds(env, dbFunc, [id], dbName, extraParams)
 
 export const getByKeyAndValues = async (
 	env: Env, 
 	dbFunc: dbFunction, 
 	key: string, 
-	values: string[]
+	values: string[],
+	dbName = "_default",
+	extraParams = {}
 ) => dbFunc(
 	env,
-  `select * from _ where ${key} in [${values
-    .map((i, index) => '$'+index)
+  `select * from ${dbName} where ${key} in [${values
+    .map((i, index) => '$'+(index+1))
     .join(',')}]`,
- 	args
+ 	values,
+ 	dbName,
+ 	extraParams
 );
 
 export const getDBRequest = async (
   env, 
   sql, 
   args = [],
-  params = {}
+	dbName = "_default",
+  extraParams = {},
 ) => {
   let url = env.QUERY_SERVICE_URL
   let hash = env.PUBLIC_PARTY_AUTH
@@ -50,8 +56,8 @@ export const getDBRequest = async (
         args,
         "timeout":"2s",
         "scan_consistency":"not_bounded",
-        "query_context":"default:starpy2._default",
-	      ...params
+        "query_context":"default:starpy2."+dbName,
+	      ...extraParams
       })
     }
   const response = await fetch(url, params)
@@ -62,7 +68,8 @@ export const fetchDB = async (
   env, 
   sql, 
   args = [],
-  params = {}
+	dbName = "_default",
+  extraParams = {},
 ) => {
   let url = env.QUERY_SERVICE_URL
   let hash = env.PUBLIC_PARTY_AUTH
@@ -79,8 +86,8 @@ export const fetchDB = async (
         args,
         "timeout":"2s",
         "scan_consistency":"not_bounded",
-        "query_context":"default:starpy2._default",
-	      ...params
+        "query_context":"default:starpy2."+dbName,
+	      ...extraParams
       })
     }
   return fetch(url, params)
@@ -90,10 +97,22 @@ export const pipeDBRequest = async (
 	env, 
 	sql, 
 	args = [],
-  params = {}
+	dbName = "_default",
+  extraParams = {},
 ) => {
   let url = env.QUERY_SERVICE_URL
   let hash = env.PUBLIC_PARTY_AUTH
+  const query_context = "default:starpy2."+dbName
+  const body = {
+    "statement":sql,
+    "pretty":true,
+    args,
+    "timeout":"2s",
+    "scan_consistency":"not_bounded",
+    query_context,
+    ...extraParams
+  }
+  console.info('body',body)
   const params = {
     url,
     method:"POST",
@@ -101,15 +120,7 @@ export const pipeDBRequest = async (
       "Authorization":`Basic ${hash}`,
       "Content-Type":"application/json"
     },
-    body:JSON.stringify({
-      "statement":sql,
-      "pretty":false,
-      args,
-      "timeout":"2s",
-      "scan_consistency":"not_bounded",
-      "query_context":"default:starpy2._default",
-      ...params
-    })
+    body:JSON.stringify(body)
   }
 
   const response = await fetch(url, params)

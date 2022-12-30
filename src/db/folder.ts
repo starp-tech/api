@@ -4,11 +4,23 @@ import {
 	pipeDBRequest
 } from './util'
 
-export const getFolderContent = async (env:Env, dbFunc:dbFunction, folderId: string) =>
-  getByKeyAndValues(env, dbFunc,'folderId', [folderId]);
+export const getFolderContent = async (
+	env:Env, 
+	dbFunc:dbFunction, 
+	folderId: string,
+	dbName: string,
+	extraParams = {}
+) =>
+  getByKeyAndValues(env, dbFunc,'folderId', [folderId], dbName, extraParams);
 
-export const getFoldersByType = async (env:Env, dbFunc:dbFunction, folderType: string) =>
-  getByKeyAndValues(env, dbFunc,'folderType', [folderType]);
+export const getFoldersByType = async (
+	env:Env, 
+	dbFunc:dbFunction, 
+	folderType: string,
+	dbName: string,
+	extraParams = {}
+) =>
+  getByKeyAndValues(env, dbFunc,'folderType', [folderType], dbName, extraParams);
 
 export const processFolderRequest = async (
 		request: Request,
