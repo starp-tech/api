@@ -10,12 +10,10 @@
   "scripts": {
     "start": "wrangler dev",
     "deploy": "wrangler publish",
-    "tail": "wrangler tail"
+    "tail": "wrangler tail",
+    "d":"npm run deploy && npm run tail"
   },
   "dependencies": {
-    "cookie": "^0.5.0",
-    "firebase": "^9.15.0",
-    "jose": "^4.11.1",
-    "jsonwebtoken": "^9.0.0"
+    "jose": "^4.11.1"
   }
 }

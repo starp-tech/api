@@ -58,7 +58,7 @@ const handleSession = async(webSocket, ip) => {
 }
 
 const broadcast = (message) => {
-  console.info("broadcast message", message, sessions.length)
+  console.info("broadcast message to "+sessions.length)
   sessions.map(session => {
       if(message.chatId === session.partyId 
         && new Date(message.createdAt).valueOf() > session.joinTime)
@@ -69,6 +69,9 @@ const broadcast = (message) => {
 
 const handleCouchError = (e) => {
   console.error("couch conn error", JSON.stringify(e), e)
+  if(e.reason 
+      === "WebSocket disconnected without sending Close frame.")
+    createCouchConnection()    
 }
 const handleCouchClose = (e) => {
   console.error("couch conn close", JSON.stringify(e))
@@ -77,7 +80,6 @@ const handleCouchClose = (e) => {
 
 const handleCouchMessage = (msg) => {
   try {
-    console.log('couch message', JSON.stringify(msg))
     let message = {
         name:"sync",
         id:"sync",
@@ -110,9 +112,11 @@ const handleCouchMessage = (msg) => {
 const createCouchConnection = async () => {
   console.info("createServerConnection start")
   try {
+    if(couch && couch.signal && couch.signal.abort)
+      couch.signal.abort()
 
-    const hash = PUBLIC_PARTY_AUTH
-    const url = PUBLIC_FEED_PATH
+    const hash = env.PUBLIC_PARTY_AUTH
+    const url = env.PUBLIC_FEED_PATH
     const resp = await fetch(url, {
       headers: {
         "Authorization":`Basic ${hash}`,
