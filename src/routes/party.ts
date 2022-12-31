@@ -3,6 +3,18 @@ import {
 	getDBRequest
 } from '../db' 
 
+export const processPartyRequest = async (request, env) => {
+  
+  if (request.url.search("party-one") > -1) {
+  	return pipeInstantPartyData(request, env)
+  }
+  if(request.url.search("party-media") > -1) {
+  	return partyMediaList(request, env)
+  }
+  return partyList(request, env)
+
+}
+
 export const pipeInstantPartyData = async (request, env) => {
   const u = new URL(request.url)
   const partyId = u.searchParams.get("partyId")

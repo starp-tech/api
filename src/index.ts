@@ -3,7 +3,8 @@ import {
 	processFolderRequest,
 	processFindRequest,
 	processWrite,
-	setUpSocket
+	setUpSocket,
+	processPartyRequest
 } from './routes'
 
 import {
@@ -21,8 +22,8 @@ export default {
 	  	return setUpSocket(request, env)
 	  }
 
-	  if (request.url.search("party-one") > -1) {
-	  	return pipeInstantPartyData(request, env)
+	  if (request.url.search("party") > -1) {
+	  	return processPartyRequest(request, env)
 	  }
 
 	  if (request.url.search("findBy") > -1) {
