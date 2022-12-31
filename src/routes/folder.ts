@@ -15,7 +15,7 @@ export const processFolderRequest = async (
   const folderType = u.searchParams.get("folderType")
 	const auth = (await getCookieData({request, env}))
 	const scope = auth ? auth.user_id : undefined;
-
+	console.info('get folder for scope', scope)
   if(folderType) 
   	return getFoldersByType(env, pipeDBRequest, folderType, 
   		scope

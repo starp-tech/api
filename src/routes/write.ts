@@ -52,14 +52,14 @@ export const processWrite = async (
 		}
 		
 		try {
-			const cr = await createScope(env, scope)
+			const cr = await (await createScope(env, scope)).json()
 			console.info("cr", JSON.stringify(cr))
 		} catch(err) {
 			console.error('cr failed', err.message)
 		}
 		
 		try {
-			const cc = await createCollection(env, scope, scope)
+			const cc = await (await createCollection(env, scope, scope)).json()
 			console.info("cc", JSON.stringify(cc))
 		} catch(err) {
 			console.error('cc failed', err.message)
@@ -67,7 +67,7 @@ export const processWrite = async (
 
 		try {
 			const cp = await createPrimaryIndex(env, scope, scope)
-			console.info("cp", JSON.stringify(cc))
+			console.info("cp", JSON.stringify(cp))
 		} catch(err) {
 			console.error('cp failed', err.message)
 		}

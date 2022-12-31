@@ -1,12 +1,13 @@
 import {
-	getDBRequest
+	getDBRequest,
+	fetchDB
 } from './util'
 export const createScope = async (env:Env, scopeName:string) => {
   let url = env.SCOPE_SERVICE_URL
   let hash = env.WRITE_USER_HASH
   env.PUBLIC_PARTY_AUTH = hash
-	const sql = 'CREATE SCOPE `starpy2`.'+scopeName
-	return getDBRequest(env, sql, [], scopeName)
+	const sql = 'CREATE SCOPE `starpy2`.`'+scopeName+'`'
+	return fetchDB(env, sql, [], scopeName)
 }
 
 export const createCollection = async (
@@ -17,8 +18,8 @@ export const createCollection = async (
   let url = env.SCOPE_SERVICE_URL
   let hash = env.WRITE_USER_HASH
   env.PUBLIC_PARTY_AUTH = hash
-	const sql = 'CREATE COLLECTION `starpy2`.'+scopeName+"."+collectionName
-	return getDBRequest(env, sql, [], scopeName)
+	const sql = 'CREATE COLLECTION `starpy2`.`'+scopeName+'`.`'+collectionName+'`'
+	return fetchDB(env, sql, [], scopeName)
 }
 
 export const createPrimaryIndex = async (
@@ -26,8 +27,8 @@ export const createPrimaryIndex = async (
 	scopeName:string, 
 	collectionName:string
 ) => {
-	const sql = "CREATE PRIMARY INDEX ON `default`:`starpy2`."+scopeName+".`"+collectionName+"`"
-	return getDBRequest(env, sql, [], scopeName)
+	const sql = "CREATE PRIMARY INDEX ON `default`:`starpy2`.`"+scopeName+"`.`"+collectionName+"`"
+	return fetchDB(env, sql, [], scopeName)
 }
 
 export const writeItem = async (
