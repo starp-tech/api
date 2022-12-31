@@ -11,9 +11,10 @@
     "start": "wrangler dev",
     "deploy": "wrangler publish",
     "tail": "wrangler tail",
-    "d":"npm run deploy && npm run tail"
+    "d": "npm run deploy && npm run tail"
   },
   "dependencies": {
-    "jose": "^4.11.1"
+    "jose": "^4.11.1",
+    "uuid": "^9.0.0"
   }
 }

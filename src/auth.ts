@@ -16,22 +16,20 @@ const getCookie = (cookieString, key) => {
   return null
 }
 
-export const parseCookie = async ({request, env}) => {
+export const getCookieData = async ({request, env}) => {
 	const cookieString = request.headers.get("Cookie")
 	const authToken = getCookie(cookieString, COOKIE_NAME)
-	if(authToken) {
-		const data = await getTokenData(authToken)
-		if(data.payload)
-			return new Response(
-				JSON.stringify(
-					{
-						...(data.payload), 
-						fromCookie:true
-					}
-				)
-			)
-		else return null
-	}
+	
+	if(!authToken) 
+		return null;
+
+	const data = await getTokenData(authToken)
+
+	if(data.payload)
+		return {
+			...(data.payload), 
+			fromCookie:true
+		}
 }
 
 export const getTokenData = async (authToken) => {

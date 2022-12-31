@@ -6,6 +6,10 @@ import {
 	setUpSocket
 } from './routes'
 
+import {
+	getCookieData
+} from './auth'
+
 export default {
 	async fetch(
 		request: Request,
@@ -33,8 +37,11 @@ export default {
 	  	return processWrite(request, env)
 	  }
 
-		const res = await parseCookie({request, env}) 
-			|| await processToken({request, env})
+	  const cookieRes = await getCookieData({request, env}) 
+
+		const res = cookieRes ? 
+			new Response(cookieRes) : 
+			await processToken({request, env});
 
 		return res
 	

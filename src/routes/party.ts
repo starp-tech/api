@@ -23,3 +23,42 @@ export const pipeInstantPartyData = async (request, env) => {
   const args = [partyId]
   return pipeDBRequest(env, sql, args)
 }
+
+export const partyList = async (request, env) => {
+  try {
+    let url = env.PUBLIC_PARTY_VIEW_URL
+    let hash = env.PUBLIC_PARTY_AUTH
+    const params = {
+        headers: {
+          "Authorization":`Basic ${hash}`
+        }
+      }
+    const data = await fetch(url, params)
+    const json = JSON.stringify(await data.json())
+    return new Response(json)
+  } catch(err) {
+    console.error("fetch err", err)
+    return new Response(JSON.stringify({message:err.message}))
+  }
+}
+
+export const partyMediaList = async (request, env) => {
+  try {
+    let u = new URL(request.url)
+    let url = new URL(env.PARTY_MEDIA_URL)
+    let hash = env.PUBLIC_PARTY_AUTH
+    const params = {
+        headers: {
+          "Authorization":`Basic ${hash}`
+        }
+      }
+    const partyId = u.searchParams.get("partyId")
+    url.searchParams.set("key", partyId)
+    const data = await fetch(url, params)
+    const json = JSON.stringify(await data.json())
+    return new Response(json)
+  } catch(err) {
+    console.error("fetch err", err)
+    return new Response(JSON.stringify({message:err.message}))
+  }
+}
