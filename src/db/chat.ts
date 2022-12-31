@@ -20,9 +20,3 @@ export const pipeLastMessageByType = async (
     return new Response(JSON.stringify({message:err.message}))
   }
 }
-
-export const getLastSequenceId = async (env) => {
-	const sql = "SELECT count(meta().id) FROM _default"
-	const results = await getDBRequest(env, sql)
-  return parseInt(results[0].$1, 10)
-}

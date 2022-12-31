@@ -1,6 +1,6 @@
 import {
 	getLastSequenceId
-} from './db'
+} from '../db'
 
 let env;
 

@@ -1,21 +1,10 @@
-
 export type dbFunction = getDBRequest | fetchDB | pipeDBRequest
 
-export const getByIds = async (
-	env: Env, 
-	dbFunc: dbFunction, 
-	ids: string[],
-	dbName: string,
-	extraParams = {}
-) => getByKeyAndValues(env, dbFunc, 'id', ids, dbName, extraParams);
-
-export const getById = async (
-	env: Env, 
-	dbFunc: dbFunction, 
-	id: string,
-	dbName: string,
-	extraParams = {}
-) => getByIds(env, dbFunc, [id], dbName, extraParams)
+export const getLastSequenceId = async (env) => {
+  const sql = "SELECT count(meta().id) FROM _default"
+  const results = await getDBRequest(env, sql)
+  return parseInt(results[0].$1, 10)
+}
 
 export const getByKeyAndValues = async (
 	env: Env, 
@@ -112,7 +101,7 @@ export const pipeDBRequest = async (
     query_context,
     ...extraParams
   }
-  console.info('body',body)
+  // console.info('body',body)
   const params = {
     url,
     method:"POST",

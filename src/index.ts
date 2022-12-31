@@ -1,21 +1,10 @@
 import {
-	processToken,
-	firebaseApp,
-	firebaseConfig,
-	COOKIE_NAME,
-	getTokenData,
-	parseCookie,
-} from './auth'
-
-import {
-	setUpSocket
-} from './socket'
-
-import {
 	pipeInstantPartyData,
 	processFolderRequest,
-	processFindRequest
-} from './db'
+	processFindRequest,
+	processWrite,
+	setUpSocket
+} from './routes'
 
 export default {
 	async fetch(
@@ -32,12 +21,16 @@ export default {
 	  	return pipeInstantPartyData(request, env)
 	  }
 
-	  if (request.url.search("find") > -1) {
+	  if (request.url.search("findBy") > -1) {
 	  	return processFindRequest(request, env)
 	  }
 
 	  if (request.url.search("folder") > -1) {
 	  	return processFolderRequest(request, env)
+	  }
+
+	  if (request.url.search("writeItem") > -1) {
+	  	return processWrite(request, env)
 	  }
 
 		const res = await parseCookie({request, env}) 

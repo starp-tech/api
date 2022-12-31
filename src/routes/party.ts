@@ -1,7 +1,7 @@
 import {
 	pipeDBRequest,
 	getDBRequest
-} from './util' 
+} from '../db' 
 
 export const pipeInstantPartyData = async (request, env) => {
   const u = new URL(request.url)
