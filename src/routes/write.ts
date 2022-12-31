@@ -2,7 +2,7 @@ import {
 	writeItem,
 	createScope,
 	createCollection
-} from './db'
+} from '../db'
 
 import {
 	getCookieData
@@ -22,7 +22,7 @@ export const processWrite = async (
 					body.id = uuid()
 
 		const auth = (await getCookieData({request, env}))
-		
+
 		const scope = auth.user_id
 		
 		if(!scope || !scope.length)
