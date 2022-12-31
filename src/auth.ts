@@ -19,7 +19,7 @@ const getCookie = (cookieString, key) => {
 export const getCookieData = async ({request, env}) => {
 	const cookieString = request.headers.get("Cookie")
 	const authToken = getCookie(cookieString, COOKIE_NAME)
-	
+
 	if(!authToken) 
 		return null;
 
@@ -27,8 +27,11 @@ export const getCookieData = async ({request, env}) => {
 
 	if(data.payload)
 		return {
-			...(data.payload), 
-			fromCookie:true
+			...(data.payload),
+			id:data.payload.user_id, 
+			isUserData:true,
+			fromCookie:true,
+			name:data.payload.email
 		}
 }
 

@@ -27,7 +27,7 @@ export const getDBRequest = async (
   env, 
   sql, 
   args = [],
-	dbName = "_default",
+	dbName,
   extraParams = {},
 ) => {
   let url = env.QUERY_SERVICE_URL
@@ -45,7 +45,7 @@ export const getDBRequest = async (
         args,
         "timeout":"2s",
         "scan_consistency":"not_bounded",
-        "query_context":"default:starpy2."+dbName,
+        "query_context":"default:starpy2"+(dbName? "."+dbName : ""),
 	      ...extraParams
       })
     }

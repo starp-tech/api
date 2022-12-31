@@ -8,7 +8,8 @@ import {
 } from './routes'
 
 import {
-	getCookieData
+	getCookieData,
+	processToken
 } from './auth'
 
 export default {
@@ -41,7 +42,7 @@ export default {
 	  const cookieRes = await getCookieData({request, env}) 
 
 		const res = cookieRes ? 
-			new Response(cookieRes) : 
+			new Response(JSON.stringify(cookieRes)) : 
 			await processToken({request, env});
 
 		return res
