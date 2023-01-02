@@ -1,7 +1,7 @@
 import {
 	getLastSequenceId
 } from '../db'
-
+// import couchbase from "couchbase"
 let env;
 
 let sessions = [];
@@ -80,6 +80,7 @@ const handleCouchClose = (e) => {
 
 const handleCouchMessage = (msg) => {
   try {
+    console.info('couch msg')
     let message = {
         name:"sync",
         id:"sync",
@@ -112,6 +113,11 @@ const handleCouchMessage = (msg) => {
 const createCouchConnection = async () => {
   console.info("createServerConnection start")
   try {
+
+    // const cluster = new couchbase.Cluster("couchbase://db-enc1.starpy.me:443", {
+    //   username: env.COUCH_USER,
+    //   password: env.COUCH_PASS,
+    // });
     if(couch && couch.signal && couch.signal.abort)
       couch.signal.abort()
 
@@ -128,7 +134,7 @@ const createCouchConnection = async () => {
 
     couch = resp.webSocket;
 
-	  console.info("createServerConnection resp", resp)
+	  console.info("createServerConnection resp", JSON.stringify(resp))
 
     if (!couch) {
       throw new Error("server didn't accept WebSocket");
@@ -141,9 +147,9 @@ const createCouchConnection = async () => {
     console.info('createServerConnection since', since)
 
     const couchOpts = {
-        "include_docs":true,
-        "since":since+1,
-        "descending":true
+      "include_docs":true,
+      "since":since,
+      // "descending":false
     }
 
     couch.send(JSON.stringify(couchOpts))

@@ -11,7 +11,9 @@ import {
 	getCookieData,
 	processToken
 } from './auth'
-
+import {
+	generatePassword
+} from './db'
 export default {
 	async fetch(
 		request: Request,
@@ -40,6 +42,14 @@ export default {
 	  }
 
 	  const cookieRes = await getCookieData({request, env}) 
+
+	  if (request.url.search("appLogin") > -1 && cookieRes) {
+	  	const r = JSON.stringify({
+	  		...cookieRes,
+	  		password:await generatePassword(env, cookieRes)
+	  	})
+	  	return new Response(r);
+	  }
 
 		const res = cookieRes ? 
 			new Response(JSON.stringify(cookieRes)) : 

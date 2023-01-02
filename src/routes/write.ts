@@ -2,7 +2,8 @@ import {
 	writeItem,
 	createScope,
 	createCollection,
-	createPrimaryIndex
+	createPrimaryIndex,
+	createUser
 } from '../db'
 
 import {
@@ -12,7 +13,6 @@ import {
 import {
 	v4 as uuid
 } from 'uuid'
-
 export const processWrite = async (
 	request: Request,
 	env: Env
@@ -23,16 +23,17 @@ export const processWrite = async (
 		if(!body)
 			throw "invalid_body"
 
-		body.id = uuid()
+		if(!body.id)
+			body.id = uuid()
 
 		const auth = (await getCookieData({request, env}))
 
 		const scope = auth.user_id
 		
+		console.info('processWrite scope', scope)
+		
 		if(!scope || !scope.length)
 			return new Response({error:"invalid_scope"})
-
-		console.info('processWrite scope', scope)
 		
 		try {
 			const first = await writeItem(
@@ -70,6 +71,12 @@ export const processWrite = async (
 			console.info("cp", JSON.stringify(cp))
 		} catch(err) {
 			console.error('cp failed', err.message)
+		}
+		try {
+			const user = await createUser(env, auth) 
+			console.info('user', JSON.stringify(user))
+		} catch(err) {
+			console.error('create user error', err)
 		}
 
 		const second = await writeItem(env, scope, scope, body)

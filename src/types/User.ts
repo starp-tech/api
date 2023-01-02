@@ -10,6 +10,7 @@ export interface UserInfo {
   prevVersion: string;
   userDoc: boolean;
   year: string;
+  user_id?:string;
 }
 
 export interface UserDocRes {

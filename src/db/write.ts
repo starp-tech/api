@@ -1,7 +1,66 @@
 import {
 	getDBRequest,
-	fetchDB
+	fetchDB,
 } from './util'
+import {
+	UserData
+} from '../types'
+
+export const hashFunc = (strings, salt, password) => {
+	const index = {salt, password, "_":"_", "@":"@"}
+	return JSON.parse(strings).reduce((a, i)=>{
+		return a + "_" + index[i]
+	}, "")
+}
+
+export const generatePassword = async (
+	env:Env, 
+	str:string
+) => {
+  // const encoder = new TextEncoder();
+  const salt = env.USER_PASSWORD_SALT
+  const text = hashFunc(env.HASH_TEMPLATE, salt, str)
+  // console.info('generateSignedString text', text)
+	const t = new TextEncoder().encode(text);
+	const myDigest = await crypto.subtle.digest(
+	  {
+	    name: env.HASH_ALGO,
+	  },
+	  t
+	);
+
+  return btoa(
+  	String.fromCharCode(...new Uint8Array(myDigest))
+	);
+}
+
+export const createUser = async (env:Env, user:UserData) => {
+	const userId = user.user_id
+	const email = user.email
+	const password = encodeURIComponent(
+		await generatePassword(env, userId)
+	)
+	// console.info('password', password, userId)
+  let url = env.USER_SERVICE_URL+userId
+  let hash = env.WRITE_USER_HASH
+  const role = encodeURIComponent(
+  	"sync_gateway_app[starpy2:"+userId+":"+userId+"]"
+  )
+  const body = 
+  	"roles="+role+"&name=&groups=&password="+password
+  
+  const params = {
+		url,
+    method:"PUT",
+    headers: {
+      "Authorization":`Basic ${hash}`,
+      "Content-Type":"application/x-www-form-urlencoded"
+    },
+	  "body":body,
+	}
+	return (await (await fetch(url, params)).json())
+} 
+
 export const createScope = async (env:Env, scopeName:string) => {
   let url = env.SCOPE_SERVICE_URL
   let hash = env.WRITE_USER_HASH
@@ -18,7 +77,10 @@ export const createCollection = async (
   let url = env.SCOPE_SERVICE_URL
   let hash = env.WRITE_USER_HASH
   env.PUBLIC_PARTY_AUTH = hash
-	const sql = 'CREATE COLLECTION `starpy2`.`'+scopeName+'`.`'+collectionName+'`'
+	const sql = 
+		'CREATE COLLECTION `starpy2`.`'
+		+scopeName+'`.`'+collectionName+'`'
+
 	return fetchDB(env, sql, [], scopeName)
 }
 
@@ -27,7 +89,10 @@ export const createPrimaryIndex = async (
 	scopeName:string, 
 	collectionName:string
 ) => {
-	const sql = "CREATE PRIMARY INDEX ON `default`:`starpy2`.`"+scopeName+"`.`"+collectionName+"`"
+	const sql = 
+		"CREATE PRIMARY INDEX ON `default`:`starpy2`.`"
+		+scopeName+"`.`"+collectionName+"`"
+		
 	return fetchDB(env, sql, [], scopeName)
 }
 
@@ -68,27 +133,3 @@ export const listScopes = async (env:Env) => {
     }
 	})
 }
-
-
-// fetch("https://db-enc1.starpy.me/pools/default/buckets/starpy2/scopes/MWXMNu7xK7YK3ololoOJoU23PWI3/collections/media/docs/124rasfasf", {
-//   "headers": {
-//     "accept": "application/json, text/plain, */*",
-//     "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
-//     "cache-control": "no-cache",
-//     "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-//     "invalid-auth-response": "on",
-//     "ns-server-ui": "yes",
-//     "pragma": "no-cache",
-//     "sec-ch-ua": "\"Not?A_Brand\";v=\"8\", \"Chromium\";v=\"108\", \"Google Chrome\";v=\"108\"",
-//     "sec-ch-ua-mobile": "?0",
-//     "sec-ch-ua-platform": "\"macOS\"",
-//     "sec-fetch-dest": "empty",
-//     "sec-fetch-mode": "cors",
-//     "sec-fetch-site": "same-origin",
-//     "cookie": "_ga=GA1.1.782769708.1672356656; _ga_TGXM40S8J8=GS1.1.1672448528.9.1.1672455976.0.0.0; ui-auth-db-enc1.starpy.me=6dfe5ed5b06a514334dec61f679199ea",
-//     "Referer": "https://db-enc1.starpy.me/ui/index.html",
-//     "Referrer-Policy": "strict-origin-when-cross-origin"
-//   },
-//   "body": "flags=33554438&value=%7B%22click%22%3A%20%22to%20edit%22%2C%22with%20JSON%22%3A%20%22there%20are%20no%20reserved%20field%20names%22%7D",
-//   "method": "POST"
-// });

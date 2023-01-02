@@ -2,7 +2,7 @@ export type dbFunction = getDBRequest | fetchDB | pipeDBRequest
 
 export const getLastSequenceId = async (env) => {
   const sql = "SELECT count(meta().id) FROM _default"
-  const results = await getDBRequest(env, sql)
+  const results = await getDBRequest(env, sql,[], "_default")
   return parseInt(results[0].$1, 10)
 }
 
