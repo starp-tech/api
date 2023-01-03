@@ -102,3 +102,32 @@ export const processToken = async ({request, env}) => {
   	return new Response(invalidTokenError)
 	}
 }
+
+export const hashFunc = (strings, salt, password) => {
+	const index = {salt, password, "_":"_", "@":"@"}
+	return JSON.parse(strings).reduce((a, i)=>{
+		return a + "_" + index[i]
+	}, "")
+}
+
+export const generatePassword = async (
+	env:Env, 
+	str:string
+) => {
+  // const encoder = new TextEncoder();
+  const salt = env.USER_PASSWORD_SALT
+  const text = hashFunc(env.HASH_TEMPLATE, salt, str.toLowerCase())
+  // console.info('generateSignedString text', text)
+	const t = new TextEncoder().encode(text);
+	const myDigest = await crypto.subtle.digest(
+	  {
+	    name: env.HASH_ALGO,
+	  },
+	  t
+	);
+
+  return btoa(
+  	String.fromCharCode(...new Uint8Array(myDigest))
+	).replace(/[^\w\s]/gi, '')
+}
+

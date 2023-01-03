@@ -3,7 +3,9 @@ import {
 	createScope,
 	createCollection,
 	createPrimaryIndex,
-	createUser
+	createUser,
+	createSyncGatewayUser,
+	createBucket
 } from '../db'
 
 import {
@@ -31,7 +33,7 @@ export const processWrite = async (
 		const scope = auth.user_id
 		
 		console.info('processWrite scope', scope)
-		
+
 		if(!scope || !scope.length)
 			return new Response({error:"invalid_scope"})
 		
@@ -51,39 +53,53 @@ export const processWrite = async (
 		} catch(err) {
 			console.error('first write failed', err.message)
 		}
-		
+		try {
+			const b = await(await createBucket(env, auth)).json()
+			// console.info('b', JSON.stringify(b))
+		} catch(err) {
+			console.error('error creating bucket', err)
+			// throw err.message
+		}
+
 		try {
 			const cr = await (await createScope(env, scope)).json()
-			console.info("cr", JSON.stringify(cr))
+			// console.info("cr", JSON.stringify(cr))
 		} catch(err) {
 			console.error('cr failed', err.message)
 		}
 		
 		try {
 			const cc = await (await createCollection(env, scope, scope)).json()
-			console.info("cc", JSON.stringify(cc))
+			// console.info("cc", JSON.stringify(cc))
 		} catch(err) {
 			console.error('cc failed', err.message)
 		}
 
 		try {
 			const cp = await createPrimaryIndex(env, scope, scope)
-			console.info("cp", JSON.stringify(cp))
+			// console.info("cp", JSON.stringify(cp))
 		} catch(err) {
 			console.error('cp failed', err.message)
 		}
 		try {
 			const user = await createUser(env, auth) 
-			console.info('user', JSON.stringify(user))
+			// console.info('user', JSON.stringify(user))
 		} catch(err) {
 			console.error('create user error', err)
+		}
+		try {
+			// const user = await createUser(env, auth) 
+			const sync = await createSyncGatewayUser(env, auth)
+			// console.info('sync user', JSON.stringify(sync))
+		} catch(err) {
+			console.error('create sync error', err)
 		}
 
 		const second = await writeItem(env, scope, scope, body)
 		return new Response(JSON.stringify(second))
 
 	} catch(err) {
-		console.error("second write error", JSON.stringify(err))
+		console.error("second write error", err.message)
 		return new Response(JSON.stringify({error:err.message}))
 	}
 }

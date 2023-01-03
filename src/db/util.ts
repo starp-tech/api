@@ -11,11 +11,11 @@ export const getByKeyAndValues = async (
 	dbFunc: dbFunction, 
 	key: string, 
 	values: string[],
-	dbName = "_default",
+	dbName = "starpy2",
 	extraParams = {}
 ) => dbFunc(
 	env,
-  `select * from \`${dbName}\` where ${key} in [${values
+  `select * from _default where ${key} in [${values
     .map((i, index) => '$'+(index+1))
     .join(',')}]`,
  	values,
@@ -27,12 +27,12 @@ export const getDBRequest = async (
   env, 
   sql, 
   args = [],
-	dbName,
+	dbName = "starpy2",
   extraParams = {},
 ) => {
   let url = env.QUERY_SERVICE_URL
   let hash = env.PUBLIC_PARTY_AUTH
-  const query_context = "default:starpy2"+(dbName? ".`"+dbName+"`" : "");
+  const query_context = "default:"+dbName.toLowerCase()+"._default"
   const params = {
       url,
       method:"POST",
@@ -58,12 +58,12 @@ export const fetchDB = async (
   env, 
   sql, 
   args = [],
-	dbName,
+	dbName = "starpy2",
   extraParams = {},
 ) => {
   let url = env.QUERY_SERVICE_URL
   let hash = env.PUBLIC_PARTY_AUTH
-  const query_context = "default:starpy2"+(dbName? ".`"+dbName+"`" : "");
+  const query_context = "default:"+dbName.toLowerCase()+"._default"
   const params = {
       url,
       method:"POST",
@@ -88,12 +88,12 @@ export const pipeDBRequest = async (
 	env, 
 	sql, 
 	args = [],
-	dbName = "_default",
+  dbName = "starpy2",
   extraParams = {},
 ) => {
   let url = env.QUERY_SERVICE_URL
   let hash = env.PUBLIC_PARTY_AUTH
-  const query_context = "default:starpy2"+(dbName? ".`"+dbName+"`" : "");
+  const query_context = "default:"+dbName.toLowerCase()+"._default"
   const body = {
     "statement":sql,
     "pretty":true,
