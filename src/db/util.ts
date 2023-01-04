@@ -2,7 +2,7 @@ export type dbFunction = getDBRequest | fetchDB | pipeDBRequest
 
 export const getLastSequenceId = async (env) => {
   const sql = "SELECT count(meta().id) FROM _default"
-  const results = await getDBRequest(env, sql,[], "_default")
+  const results = await getDBRequest(env, sql,[])
   return parseInt(results[0].$1, 10)
 }
 
@@ -106,6 +106,10 @@ export const pipeDBRequest = async (
   console.info('body',body)
   const params = {
     url,
+    cf: {
+      cacheTtlByStatus: { '200-299': 6, '404': 1, '500-599': 0 },
+      cacheEverything:true
+    },
     method:"POST",
     headers: {
       "Authorization":`Basic ${hash}`,
