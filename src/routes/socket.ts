@@ -1,7 +1,6 @@
 import {
 	getLastSequenceId
 } from '../db'
-// import couchbase from "couchbase"
 let env;
 
 let sessions = [];
@@ -59,12 +58,20 @@ const handleSession = async(webSocket, ip) => {
 
 const broadcast = (message) => {
   console.info("broadcast message to "+sessions.length)
-  sessions.map(session => {
-      if(message.chatId === session.partyId 
-        && new Date(message.createdAt).valueOf() > session.joinTime)
-        session.webSocket.send(JSON.stringify(message))
-    }
-  );
+  try {
+    sessions.map(session => {
+        try {
+          if(message.chatId === session.partyId 
+            && new Date(message.createdAt).valueOf() > session.joinTime)
+            session.webSocket.send(JSON.stringify(message))
+        } catch(err) {
+          console.error('broadcast single error', err.message)
+        }
+      }
+    );
+  } catch(err) {
+    console.error('broadcast all error', err.message)
+  }
 }
 
 const handleCouchError = (e) => {
@@ -80,7 +87,7 @@ const handleCouchClose = (e) => {
 
 const handleCouchMessage = (msg) => {
   try {
-    console.info('couch msg')
+    console.info('couch msg data length', msg.data.length)
     let message = {
         name:"sync",
         id:"sync",
@@ -114,16 +121,12 @@ const createCouchConnection = async () => {
   console.info("createServerConnection start")
   try {
 
-    // const cluster = new couchbase.Cluster("couchbase://db-enc1.starpy.me:443", {
-    //   username: env.COUCH_USER,
-    //   password: env.COUCH_PASS,
-    // });
     if(couch && couch.signal && couch.signal.abort)
       couch.signal.abort()
 
     const hash = env.PUBLIC_PARTY_AUTH
     const url = env.PUBLIC_FEED_PATH
-    const resp = await fetch(url, {
+    const resp = await fetch(url+"?feed=websocket", {
       headers: {
         "Authorization":`Basic ${hash}`,
         "upgrade": 'websocket',
@@ -142,14 +145,18 @@ const createCouchConnection = async () => {
 
     couch.accept();
 
-    let since = await getLastSequenceId(env)
+    let since = (await (await fetch(url+"?since=9090", {
+      headers: {
+        "Authorization":`Basic ${hash}`,
+      }
+    })).json()).last_seq
     
     console.info('createServerConnection since', since)
 
     const couchOpts = {
       "include_docs":true,
       "since":since,
-      // "descending":false
+      // "descending":true
     }
 
     couch.send(JSON.stringify(couchOpts))

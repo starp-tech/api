@@ -15,6 +15,42 @@ import {
 import {
 	v4 as uuid
 } from 'uuid'
+
+export const processPublicWrite = async (
+	request:Request, 
+	env:Env
+) => {
+	try {
+		const body = await request.json()
+
+		if(!body)
+			throw "invalid_body"
+
+		body.id = uuid()
+
+		const auth = (await getCookieData({request, env}))
+
+		const scope = auth.user_id
+		
+		console.info('public write scope', scope)
+
+		if(!scope || !scope.length)
+			return new Response({error:"invalid_scope"})
+
+		const first = await writeItem(
+			env, 
+			"starpy2", 
+			"starpy2", 
+			body
+		)
+		return new Response(JSON.stringify(first))
+	} catch(err) {
+		console.error("public write error", err.message)
+		return new Response(JSON.stringify({error:err.message}))
+	}
+
+}
+
 export const processWrite = async (
 	request: Request,
 	env: Env
