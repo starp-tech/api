@@ -27,17 +27,13 @@ export default {
 		  	return setUpSocket(request, env)
 		  }
 
+		  if (request.url.search("findBy") > -1) {
+		  	return processFindRequest(request, env)
+		  }
+
 		  if (request.url.search("messages") > -1) {
 		  	// console.info('get messages')
 		  	return pipeMessagesForParty(request, env)
-		  }
-
-		  if (request.url.search("party") > -1) {
-		  	return processPartyRequest(request, env)
-		  }
-
-		  if (request.url.search("findBy") > -1) {
-		  	return processFindRequest(request, env)
 		  }
 
 		  if (request.url.search("folder") > -1) {
@@ -50,6 +46,10 @@ export default {
 
 		  if(request.url.search("writePublicData") > -1) {
 		  	return processPublicWrite(request, env);
+		  }
+		  
+		  if (request.url.search("party") > -1) {
+		  	return processPartyRequest(request, env)
 		  }
 
 
