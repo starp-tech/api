@@ -47,7 +47,7 @@ export default {
 		  if(request.url.search("writePublicData") > -1) {
 		  	return processPublicWrite(request, env);
 		  }
-		  
+
 		  if (request.url.search("party") > -1) {
 		  	return processPartyRequest(request, env)
 		  }
