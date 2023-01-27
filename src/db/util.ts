@@ -1,6 +1,9 @@
-export type dbFunction = getDBRequest | fetchDB | pipeDBRequest
+import {
+  Env
+} from '../types'
+export type dbFunction = typeof getDBRequest | typeof fetchDB | typeof pipeDBRequest
 
-export const getLastSequenceId = async (env) => {
+export const getLastSequenceId = async (env:Env) => {
   const sql = "SELECT count(meta().id) FROM _default"
   const results = await getDBRequest(env, sql,[])
   return parseInt(results[0].$1, 10)
@@ -24,9 +27,9 @@ export const getByKeyAndValues = async (
 );
 
 export const getDBRequest = async (
-  env, 
-  sql, 
-  args = [],
+	env: Env, 
+  sql: string,
+	args = [] as (string | number)[],
 	dbName = "starpy2",
   extraParams = {},
 ) => {
@@ -51,13 +54,13 @@ export const getDBRequest = async (
       })
     }
   const response = await fetch(url, params)
-  return (await response.json()).results
+  return ((await response.json()) as any).results
 }
 
 export const fetchDB = async (
-  env, 
-  sql, 
-  args = [],
+  env: Env, 
+  sql: String,
+	args = [] as (string | number)[],
 	dbName = "starpy2",
   extraParams = {},
 ) => {
@@ -85,9 +88,9 @@ export const fetchDB = async (
 }
 
 export const pipeDBRequest = async (
-	env, 
-	sql, 
-	args = [],
+	env: Env, 
+	sql: String, 
+	args = [] as (string | number)[],
   dbName = "starpy2",
   extraParams = {},
 ) => {
@@ -120,6 +123,6 @@ export const pipeDBRequest = async (
 
   const response = await fetch(url, params)
   let { readable, writable } = new TransformStream();
-  response.body.pipeTo(writable);
+  response.body?.pipeTo(writable);
   return new Response(readable, response);
 }

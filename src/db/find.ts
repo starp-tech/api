@@ -1,8 +1,10 @@
 import {
+	Env
+} from '../types'
+
+import {
   getByKeyAndValues,
-  dbFunction,
-  pipeDBRequest,
-  getDBRequest
+  dbFunction
 } from './util'
 
 export const getByIds = async (

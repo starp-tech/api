@@ -1,12 +1,14 @@
 import {
 	pipeDBRequest,
-	getDBRequest,
   getFolderContent
 } from '../db' 
+import {
+	Env
+} from '../types'
 
 export const publicPartyPref = 'public_party_';
 
-export const processPartyRequest = async (request, env) => {
+export const processPartyRequest = async (request:Request, env:Env) => {
   
   if (request.url.search("party-list") > -1) {
     return partyList(request, env)
@@ -24,7 +26,7 @@ export const processPartyRequest = async (request, env) => {
 
 }
 
-export const pipeInstantPartyData = async (request, env) => {
+export const pipeInstantPartyData = async (request:Request, env:Env) => {
   const u = new URL(request.url)
   const partyId = u.searchParams.get("partyId")
   const sql = `
@@ -41,15 +43,15 @@ export const pipeInstantPartyData = async (request, env) => {
 		  and party.partyId = $1 order by media.createdAt desc limit 1
 	  )
   `
-  const args = [partyId]
+  const args = [partyId] as string[]
   return pipeDBRequest(env, sql, args)
 }
 
-export const partyList = async (request, env) => 
+export const partyList = async (request:Request, env:Env) => 
   getFolderContent(env, pipeDBRequest, publicPartyPref, "starpy2")
 
 
-export const partyMediaList = async (request, env) => {
+export const partyMediaList = async (request:Request, env:Env) => {
   try {
     let u = new URL(request.url)
     let url = new URL(env.PARTY_MEDIA_URL)
@@ -60,12 +62,12 @@ export const partyMediaList = async (request, env) => {
         }
       }
     const partyId = u.searchParams.get("partyId")
-    url.searchParams.set("key", partyId)
+    url.searchParams.set("key", partyId as string)
     const data = await fetch(url, params)
     const json = JSON.stringify(await data.json())
     return new Response(json)
   } catch(err) {
     console.error("fetch err", err)
-    return new Response(JSON.stringify({message:err.message}))
+    return new Response(JSON.stringify({message:(err as Error).message}))
   }
 }

@@ -1,16 +1,16 @@
 import {
-	getLastSequenceId
-} from '../db'
-let env;
+  Env
+} from '../types'
+let env:Env;
 
-let sessions = [];
+let sessions = [] as any[];
 
 let lastTimestamp = 0;
 
-let couch = null
+let couch:any = null
 
 
-export const setUpSocket = async (request, e) => {
+export const setUpSocket = async (request:Request, e:Env) => {
   env = e
   
   if (request.headers.get("Upgrade") != "websocket") {
@@ -21,12 +21,12 @@ export const setUpSocket = async (request, e) => {
 
   let [client, server] = Object.values(new WebSocketPair());
   
-  await handleSession(server, ip);
+  await handleSession(server, ip as string);
 
   return new Response(null, { status: 101, webSocket: client });
 }
 
-const handleMessage = async (session, msg) => {
+const handleMessage = async (session:any, msg:any) => {
   try {
     const data = JSON.parse(msg.data)
     console.info('handleMessage', session, data)
@@ -34,17 +34,25 @@ const handleMessage = async (session, msg) => {
     session.joinTime = new Date().valueOf()
     broadcast(data);
   } catch (err) {
-    console.error('parse message errror', err.message)
+    console.error('parse message errror', (err as Error).message)
   }
 }
 
-const handleSession = async(webSocket, ip) => {
+const handleSession = async(webSocket:WebSocket, ip:string) => {
 
   webSocket.accept();
 
-  let session = {webSocket, blockedMessages: [], ip};
+  let session = {
+    webSocket, 
+    blockedMessages: [], 
+    ip, 
+    partyId:"", 
+    joinTime:0, 
+    quit:false
+  };
+
   sessions.push(session);
-  let closeOrErrorHandler = evt => {
+  let closeOrErrorHandler = (evt:any) => {
     session.quit = true;
     sessions = sessions.filter(member => member !== session);
     broadcast({quit: session.partyId});
@@ -56,7 +64,7 @@ const handleSession = async(webSocket, ip) => {
   createCouchConnection()
 }
 
-const broadcast = (message) => {
+const broadcast = (message:any) => {
   console.info("broadcast message to "+sessions.length)
   try {
     sessions.map(session => {
@@ -65,33 +73,34 @@ const broadcast = (message) => {
             && new Date(message.createdAt).valueOf() > session.joinTime)
             session.webSocket.send(JSON.stringify(message))
         } catch(err) {
-          console.error('broadcast single error', err.message)
+          console.error('broadcast single error', (err as Error).message)
         }
       }
     );
   } catch(err) {
-    console.error('broadcast all error', err.message)
+    console.error('broadcast all error', (err as Error).message)
   }
 }
 
-const handleCouchError = (e) => {
+const handleCouchError = (e:any) => {
   console.error("couch conn error", JSON.stringify(e), e)
   if(e.reason 
       === "WebSocket disconnected without sending Close frame.")
     createCouchConnection()    
 }
-const handleCouchClose = (e) => {
+const handleCouchClose = (e:any) => {
   console.error("couch conn close", JSON.stringify(e))
 	createCouchConnection()
 }
 
-const handleCouchMessage = (msg) => {
+const handleCouchMessage = (msg:any) => {
   try {
     console.info('couch msg data length', msg.data.length)
     let message = {
         name:"sync",
         id:"sync",
         message:"update",
+        chatId:"",
         server_update:true
     }
     if(msg.data && msg.data.length) {
@@ -113,7 +122,7 @@ const handleCouchMessage = (msg) => {
     broadcast(message)
 
   } catch(err) {
-    console.error("couch message error", err.message)
+    console.error("couch message error", (err as Error).message)
   } 
 }
 
@@ -149,7 +158,7 @@ const createCouchConnection = async () => {
       headers: {
         "Authorization":`Basic ${hash}`,
       }
-    })).json()).last_seq
+    })).json() as any).last_seq
     
     console.info('createServerConnection since', since)
 
@@ -167,6 +176,6 @@ const createCouchConnection = async () => {
     console.info("createServerConnection success")
 
   } catch(err) {
-    console.error("createServerConnection error", err.message)
+    console.error("createServerConnection error", (err as Error).message)
   }
 }

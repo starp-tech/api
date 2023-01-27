@@ -1,17 +1,17 @@
 import {
-	getDBRequest,
+	Env,
+	UserInfo
+} from '../types'
+import {
 	fetchDB,
 } from './util'
-import {
-	UserData
-} from '../types'
 
 import {
 	generatePassword
 } from '../auth'
 
-export const createBucket = async (env:Env, user:UserData) => {
-	const userId = user.user_id.toLowerCase()
+export const createBucket = async (env:Env, user:UserInfo) => {
+	const userId = user.user_id?.toLowerCase()
 	const url = env.BUCKETS_URL
   const hash = env.WRITE_USER_HASH
   const body = "name="+userId
@@ -35,11 +35,10 @@ export const createBucket = async (env:Env, user:UserData) => {
 
 export const createSyncGatewayUser = async (
 	env:Env, 
-	user:UserData, 
-	method:string
+	user:UserInfo
 ) => {
-	const userId = user.user_id.toLowerCase()
-	const password = await generatePassword(env, userId)
+	const userId = user.user_id?.toLowerCase()
+	const password = await generatePassword(env, userId || "")
 	const url = env.SYNC_GATEWAY_URL+userId
   const hash = env.WRITE_USER_HASH
   const bucketParams = {
@@ -67,7 +66,7 @@ export const createSyncGatewayUser = async (
 		const db = await (await fetch(url, params)).json()
 		// console.info('sync gateway response', JSON.stringify(db))
 	} catch (err) {
-		console.error('sync gateway db error', err.message)
+		console.error('sync gateway db error', (err as  Error).message)
 	}
 	const userParams = {
 		url:url+"/_user/"+userId,
@@ -83,11 +82,11 @@ export const createSyncGatewayUser = async (
 }
 
 
-export const createUser = async (env:Env, user:UserData) => {
-	const userId = user.user_id.toLowerCase()
+export const createUser = async (env:Env, user:UserInfo) => {
+	const userId = user.user_id?.toLowerCase()
 	const email = user.email
 	const password = encodeURIComponent(
-		await generatePassword(env, userId)
+		await generatePassword(env, userId || "")
 	)
 	// console.info('password', password, userId)
   let url = env.USER_SERVICE_URL+userId
@@ -171,11 +170,12 @@ export const writeItem = async (
 export const listScopes = async (env:Env) => {
   let url = env.SCOPE_SERVICE_URL
   let hash = env.WRITE_USER_HASH
-	return fetch({
+  const params = {
 		url,
-    headers: {
-      "Authorization":`Basic ${hash}`,
-      "Content-Type":"application/json"
-    }
-	})
+		headers: {
+			"Authorization":`Basic ${hash}`,
+			"Content-Type":"application/json"
+		}
+	}
+	return fetch(url, params)
 }

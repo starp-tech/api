@@ -6,6 +6,10 @@ import {
 import {
 	getCookieData
 } from '../auth'
+import {
+	Env
+} from '../types'
+
 export const processFolderRequest = async (
 		request: Request,
 		env: Env

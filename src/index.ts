@@ -1,3 +1,4 @@
+// import * from '@cloudflare/workers-types';
 import {
 	pipeInstantPartyData,
 	processFolderRequest,

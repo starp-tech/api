@@ -3,6 +3,9 @@ import {
 	findByOriginalId,
 	pipeDBRequest	
 } from '../db'
+import {
+	Env
+} from '../types'
 
 export const processFindRequest = async (
 	request: Request,
@@ -13,9 +16,9 @@ export const processFindRequest = async (
   const id = u.searchParams.get("id")
 
   if(id) 
-  	return getById(env, pipeDBRequest, id)
+  	return getById(env, pipeDBRequest, id, "starpy2")
   
   if(originalId) 
-  	return findByOriginalId(env, pipeDBRequest, originalId)
+  	return findByOriginalId(env, pipeDBRequest, originalId, "starpy2")
   
 }

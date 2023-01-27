@@ -1,10 +1,13 @@
 import * as jose from 'jose'
+import {
+	Env
+} from './types'
 const pubKeyUrl = 
 	"https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com"
 
 export const COOKIE_NAME = '__peerAuthToken';
 
-const getCookie = (cookieString, key) => {
+const getCookie = (cookieString:string, key:string) => {
   if (cookieString) {
     const allCookies = cookieString.split("; ")
     const targetCookie = allCookies.find(cookie => cookie.includes(key))
@@ -35,8 +38,8 @@ export const getCookieData = async ({request, env}) => {
 		}
 }
 
-export const getTokenData = async (authToken) => {
-	const json = await (await fetch(pubKeyUrl)).json()
+export const getTokenData = async (authToken:string) => {
+	const json = await (await fetch(pubKeyUrl)).json() as any
 	// console.info('tokens json', json, authToken)
 	const pubKeys = Object.keys(json).map(j=>json[j])
 	// console.info('start validateToken', pubKeys)
@@ -60,7 +63,7 @@ export const getTokenData = async (authToken) => {
 				return {}
 			}
 		}
-	))).find(i=>i.payload) || {})
+	))).find(i=>i.payload) || {payload: {} as any})
 }
 
 const validateToken = async (authToken:string) => {
@@ -70,7 +73,7 @@ const validateToken = async (authToken:string) => {
 		return isValid.payload
 	} catch(err) {
 		console.error('validateToken error', err)
-		throw err.message
+		throw (err as Error).message
 	}
 }
 
@@ -103,10 +106,10 @@ export const processToken = async ({request, env}) => {
 	}
 }
 
-export const hashFunc = (strings, salt, password) => {
+export const hashFunc = (strings:string, salt:string, password:string) => {
 	const index = {salt, password, "_":"_", "@":"@"}
-	return JSON.parse(strings).reduce((a, i)=>{
-		return a + "_" + index[i]
+	return JSON.parse(strings).reduce((a:string, i:string)=>{
+		return a + "_" + index[i] as string
 	}, "")
 }
 

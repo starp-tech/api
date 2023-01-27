@@ -9,6 +9,10 @@ import {
 } from '../db'
 
 import {
+	Env
+} from '../types'
+
+import {
 	getCookieData
 } from '../auth'
 
@@ -24,9 +28,9 @@ export const processPublicWrite = async (
 		const body = await request.json()
 
 		if(!body)
-			throw "invalid_body"
+			throw "invalid_body";
 
-		body.id = uuid()
+		(body as any).id = uuid()
 
 		const auth = (await getCookieData({request, env}))
 
@@ -35,7 +39,9 @@ export const processPublicWrite = async (
 		console.info('public write scope', scope)
 
 		if(!scope || !scope.length)
-			return new Response({error:"invalid_scope"})
+			return new Response(JSON.stringify(
+				{error:"invalid_scope"}
+			))
 
 		const first = await writeItem(
 			env, 
@@ -45,8 +51,8 @@ export const processPublicWrite = async (
 		)
 		return new Response(JSON.stringify(first))
 	} catch(err) {
-		console.error("public write error", err.message)
-		return new Response(JSON.stringify({error:err.message}))
+		console.error("public write error", (err as Error).message)
+		return new Response(JSON.stringify({error:(err as Error).message}))
 	}
 
 }
@@ -61,8 +67,8 @@ export const processWrite = async (
 		if(!body)
 			throw "invalid_body"
 
-		if(!body.id)
-			body.id = uuid()
+		if(!(body as any).id)
+			(body as any).id = uuid()
 
 		const auth = (await getCookieData({request, env}))
 
@@ -71,10 +77,12 @@ export const processWrite = async (
 		console.info('processWrite scope', scope)
 
 		if(!scope || !scope.length)
-			return new Response({error:"invalid_scope"})
+			return new Response(JSON.stringify(
+				{error:"invalid_scope"}
+			))
 		
 		try {
-			const first = await writeItem(
+			const first:any = await writeItem(
 				env, 
 				scope, 
 				scope, 
@@ -87,7 +95,7 @@ export const processWrite = async (
 
 			return new Response(JSON.stringify(first))
 		} catch(err) {
-			console.error('first write failed', err.message)
+			console.error('first write failed', (err as Error).message)
 		}
 		try {
 			const b = await(await createBucket(env, auth)).json()
@@ -101,21 +109,21 @@ export const processWrite = async (
 			const cr = await (await createScope(env, scope)).json()
 			// console.info("cr", JSON.stringify(cr))
 		} catch(err) {
-			console.error('cr failed', err.message)
+			console.error('cr failed', (err as Error).message)
 		}
 		
 		try {
 			const cc = await (await createCollection(env, scope, scope)).json()
 			// console.info("cc", JSON.stringify(cc))
 		} catch(err) {
-			console.error('cc failed', err.message)
+			console.error('cc failed', (err as Error).message)
 		}
 
 		try {
 			const cp = await createPrimaryIndex(env, scope, scope)
 			// console.info("cp", JSON.stringify(cp))
 		} catch(err) {
-			console.error('cp failed', err.message)
+			console.error('cp failed', (err as Error).message)
 		}
 		try {
 			const user = await createUser(env, auth) 
@@ -135,7 +143,7 @@ export const processWrite = async (
 		return new Response(JSON.stringify(second))
 
 	} catch(err) {
-		console.error("second write error", err.message)
-		return new Response(JSON.stringify({error:err.message}))
+		console.error("second write error", (err as Error).message)
+		return new Response(JSON.stringify({error:(err as Error).message}))
 	}
 }
