@@ -15,6 +15,7 @@
     "d": "npm run deploy && npm run tail"
   },
   "dependencies": {
+    "@tuya/tuya-connector-nodejs": "^2.1.2",
     "jose": "^4.11.1",
     "uuid": "^9.0.0"
   }

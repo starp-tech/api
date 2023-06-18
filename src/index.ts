@@ -7,7 +7,9 @@ import {
 	setUpSocket,
 	processPartyRequest,
 	processPublicWrite,
-	pipeMessagesForParty
+	pipeMessagesForParty,
+	getLockList,
+	setNewKey
 } from './routes'
 
 import {
@@ -51,6 +53,14 @@ export default {
 
 		  if (request.url.search("party") > -1) {
 		  	return processPartyRequest(request, env)
+		  }
+
+		  if (request.url.search("getlocklist") > -1) {
+		  	return getLockList()
+		  }
+
+		  if (request.url.search("setlockkey") > -1) {
+		  	return setNewKey(request, env)
 		  }
 
 
