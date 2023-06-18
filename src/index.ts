@@ -56,7 +56,7 @@ export default {
 		  }
 
 		  if (request.url.search("getlocklist") > -1) {
-		  	return getLockList()
+		  	return getLockList(request, env)
 		  }
 
 		  if (request.url.search("setlockkey") > -1) {

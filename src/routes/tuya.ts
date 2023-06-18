@@ -5,12 +5,8 @@ const getTuyaLocks = async (env:Env) => {
 	const context = new TuyaContext({
 		baseUrl: env.TUYA_API_URL,
 		accessKey: env.TUYA_API_KEY,
-		secretKey: env.TUYA_API_SECRETE,
+		secretKey: env.TUYA_API_SECRET,
 	});
-	const device_id = "bf95f0yvuyadanlz";
-  const devicedetail  = await context.device.detail({
-    device_id: device_id,
-  });
 	const data = await context.request({
 	  method: 'GET',
 	  path: '/v1.3/iot-03/devices',
