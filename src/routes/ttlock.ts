@@ -4,6 +4,7 @@ const addPassCodeUrl = "/v3/keyboardPwd/add";
 const listPassCodesUrl = "/v3/lock/listKeyboardPwd";
 const cloudRegisterURL = "/v3/user/register";
 const transferLockUrl = "/v3/lock/transfer";
+const addCardUrl = "/v3/identityCard/addForReversedCardNumber"
 const contentType = "application/x-www-form-urlencoded";
 import { getTuyaLocks } from './tuya'
 
@@ -85,6 +86,22 @@ export const setNewKey = async (
   return new Response(JSON.stringify(newKey))
 }
 
+export const setLockCard = async (
+  request: Request, 
+  env: Env
+) => {
+  const u = new URL(request.url)
+  const lockId = u.searchParams.get("lockId")
+  const card = u.searchParams.get("card")
+  const start = u.searchParams.get("start")
+  const end = u.searchParams.get("end")
+  const name = u.searchParams.get("name")
+  const newKey = await setLockCardForStartEndTime(
+    env, lockId, cardId, start, end, name
+  )
+  return new Response(JSON.stringify(newKey))
+}
+
 export const setLockPassForStartEndTime = async (
   env:Env,
   lockId:number, 
@@ -109,6 +126,37 @@ export const setLockPassForStartEndTime = async (
     }&lockId=${lockId}&keyboardPwd=${
       passcode}&startDate=${
         startDate}&addType=2&endDate=${
+          endDate}&date=${new Date().valueOf()}&changeType=2`
+  });
+  const data = await res.json();
+  return data;
+};
+
+export const setLockCardForStartEndTime = async (
+  env:Env,
+  lockId:number, 
+  cardId:number, 
+  startDate:number,
+  endDate:number,
+  cardName:string
+) => {
+  const auth = await cloudAuth(env)
+  console.info(
+    "setLockCardForStartEndTime", 
+    lockId, 
+    cardId, 
+    startDate, 
+    endDate, 
+    auth.access_token
+  );
+  const res = await fetch(env.TT_LOCK_API_URL+addCardUrl, {
+    method: "post",
+    headers: { "Content-Type": contentType },
+    body: `clientId=${env.TT_LOCK_API_ID}&accessToken=${
+      auth.access_token
+    }&lockId=${lockId}&cardNumber=${
+      cardId}&startDate=${
+        startDate}&cardName=${cardName}&addType=2&endDate=${
           endDate}&date=${new Date().valueOf()}&changeType=2`
   });
   const data = await res.json();

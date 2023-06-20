@@ -9,7 +9,8 @@ import {
 	processPublicWrite,
 	pipeMessagesForParty,
 	getLockList,
-	setNewKey
+	setNewKey,
+	setLockCard
 } from './routes'
 
 import {
@@ -62,6 +63,11 @@ export default {
 		  if (request.url.search("setlockkey") > -1) {
 		  	return setNewKey(request, env)
 		  }
+
+		  if (request.url.search("setlockcard") > -1) {
+		  	return setLockCard(request, env)
+		  }
+		  
 
 
 		  const cookieRes = await getCookieData({request, env}) 
