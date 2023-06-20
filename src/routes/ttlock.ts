@@ -97,7 +97,7 @@ export const setLockCard = async (
   const end = u.searchParams.get("end")
   const name = u.searchParams.get("name")
   const newKey = await setLockCardForStartEndTime(
-    env, lockId, cardId, start, end, name
+    env, lockId, card, start, end, name
   )
   return new Response(JSON.stringify(newKey))
 }
