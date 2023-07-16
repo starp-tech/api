@@ -10,7 +10,9 @@ import {
 	pipeMessagesForParty,
 	getLockList,
 	setNewKey,
-	setLockCard
+	setLockCard,
+	clearLockCards,
+	listBookings
 } from './routes'
 
 import {
@@ -66,6 +68,14 @@ export default {
 
 		  if (request.url.search("setlockcard") > -1) {
 		  	return setLockCard(request, env)
+		  }
+		  
+		  if (request.url.search("clearlockcards") > -1) {
+		  	return clearLockCards(request, env)
+		  }
+
+		  if (request.url.search("getbookings") > -1) {
+		  	return listBookings(request, env)
 		  }
 		  
 
