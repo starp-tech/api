@@ -8,7 +8,6 @@ const addCardUrl = "/v3/identityCard/add"
 const listCardsUrl = "/v3/identityCard/list"
 const contentType = "application/x-www-form-urlencoded";
 const clearCardsUrl = "/v3/identityCard/clear"
-import { getTuyaLocks } from './tuya'
 
 export const cloudAuth = async (env: Env) => {
   const payload = { 
@@ -64,12 +63,6 @@ export const getLockList = async (
       auth.access_token
     }&pageNo=1&pageSize=20&date=${new Date().valueOf()}`
   });
-  try {
-    const tuya = await getTuyaLocks(env)
-    console.info('tuya response')
-  } catch(err) {
-    console.error('======= get tuya error ====', err)
-  }
   const data = await Promise.all((await res.json())
     .list.map(async (lock)=>{
       lock.keys = await listPassCodesForLock(lock.lockId, env) 

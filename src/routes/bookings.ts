@@ -15,3 +15,8 @@ export const listBookings = async (request:Request, env:Env) => {
 	const bookings = await getBookings(env)
 	return new Response(JSON.stringify(bookings))
 }
+
+
+export const sendBookingInvoice = async (request:Request, env:Env) => {
+
+}
