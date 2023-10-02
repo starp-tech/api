@@ -69,7 +69,7 @@ export const getTokenData = async (authToken:string) => {
 const validateToken = async (authToken:string) => {
 	try {
 		const isValid = await getTokenData(authToken)
-		console.info(isValid)
+		console.info("isValid", isValid)
 		return isValid.payload
 	} catch(err) {
 		console.error('validateToken error', err)

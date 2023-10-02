@@ -95,10 +95,10 @@ export const processWrite = async (
 
 			return new Response(JSON.stringify(first))
 		} catch(err) {
-			console.error('first write failed', (err as Error).message)
+			console.error('first write failed', JSON.stringify((err as Error).message))
 		}
 		try {
-			const b = await(await createBucket(env, auth)).json()
+			const b = await(await createBucket(env, auth))
 			// console.info('b', JSON.stringify(b))
 		} catch(err) {
 			console.error('error creating bucket', err)
@@ -106,14 +106,14 @@ export const processWrite = async (
 		}
 
 		try {
-			const cr = await (await createScope(env, scope)).json()
+			const cr = await (await createScope(env, scope))
 			// console.info("cr", JSON.stringify(cr))
 		} catch(err) {
 			console.error('cr failed', (err as Error).message)
 		}
 		
 		try {
-			const cc = await (await createCollection(env, scope, scope)).json()
+			const cc = await (await createCollection(env, scope, scope))
 			// console.info("cc", JSON.stringify(cc))
 		} catch(err) {
 			console.error('cc failed', (err as Error).message)

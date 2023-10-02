@@ -17,7 +17,7 @@ export const createBucket = async (env:Env, user:UserInfo) => {
   const body = "name="+userId
   +"&bucketType=membase&storageBackend=couchstore"
   +"&autoCompactionDefined=false&evictionPolicy=valueOnly"
-  +"&threadsNumber=3&replicaNumber=1&durabilityMinLevel=none"
+  +"&threadsNumber=2&replicaNumber=1&durabilityMinLevel=none"
   +"&compressionMode=passive&maxTTL=0&replicaIndex=0"
   +"&conflictResolutionType=seqno&ramQuotaMB=100&flushEnabled=0"
   const params = {
@@ -29,8 +29,10 @@ export const createBucket = async (env:Env, user:UserInfo) => {
     },
 	  "body":body
 	}
-	// console.info('createBucket', JSON.stringify(params))
-	return fetch(url, params)
+	console.info('createBucket', JSON.stringify(params))
+	const res = await (await fetch(url, params)).text()
+	console.info('createBucket', res)
+	return res
 }
 
 export const createSyncGatewayUser = async (
@@ -163,8 +165,9 @@ export const writeItem = async (
     },
 	  "body": "flags=33554438&value="+encodeURIComponent(JSON.stringify(data)),
 	}
-	// console.info('writeItem params', params)
-	return (await (await fetch(url, params)).json())
+	console.info('writeItem params', params)
+	const res = await fetch(url, params)
+	return (await res.json())
 }
 
 export const listScopes = async (env:Env) => {

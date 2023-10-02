@@ -95,7 +95,7 @@ const handleCouchClose = (e:any) => {
 
 const handleCouchMessage = (msg:any) => {
   try {
-    console.info('couch msg data length', msg.data.length)
+    console.info('couch msg data length', msg.data.length, msg.data)
     let message = {
         name:"sync",
         id:"sync",
@@ -154,7 +154,7 @@ const createCouchConnection = async () => {
 
     couch.accept();
 
-    let since = (await (await fetch(url+"?since=9090", {
+    let since = (await (await fetch(url, {
       headers: {
         "Authorization":`Basic ${hash}`,
       }

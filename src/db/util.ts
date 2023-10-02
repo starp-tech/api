@@ -106,12 +106,11 @@ export const pipeDBRequest = async (
     query_context,
     ...extraParams
   }
-  console.info('body',body)
+  console.info('body',body, sql)
   const params = {
     url,
     cf: {
-      cacheTtlByStatus: { '200-299': 6, '404': 1, '500-599': 0 },
-      cacheEverything:true
+      cacheEverything:false
     },
     method:"POST",
     headers: {
