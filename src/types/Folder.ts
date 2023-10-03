@@ -12,9 +12,9 @@ export interface Folder {
 }
 
 export enum FolderType {
-  contact = 'contact',
-  media = 'media',
-  property = 'property'
+  contact = "contact",
+  media = "media",
+  property = "property",
 }
 
 export interface FolderRes {

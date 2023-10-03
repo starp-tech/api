@@ -29,20 +29,20 @@ export interface ChatRoomRes {
 }
 
 export enum ChatMessageType {
-  media = 'media',
-  call = 'call',
-  text = 'text',
-  party_request = 'party_request',
-  party_confirmation = 'party_confirmation',
-  party_start = 'party_start',
-  party_join = 'party_join',
-  party_stop = 'party_stop',
-  party_quit = 'party_quit',
-  party_media = 'party_media',
-  party_stop_media = 'party_media_stop',
-  party_media_pause = 'party_media_pause',
-  party_media_unpause = 'party_media_unpause',
-  party_media_sync = 'party_media_sync',
+  media = "media",
+  call = "call",
+  text = "text",
+  party_request = "party_request",
+  party_confirmation = "party_confirmation",
+  party_start = "party_start",
+  party_join = "party_join",
+  party_stop = "party_stop",
+  party_quit = "party_quit",
+  party_media = "party_media",
+  party_stop_media = "party_media_stop",
+  party_media_pause = "party_media_pause",
+  party_media_unpause = "party_media_unpause",
+  party_media_sync = "party_media_sync",
 }
 
 export interface ChatMessage {
@@ -59,16 +59,16 @@ export interface ChatMessage {
   messageType?: ChatMessageType;
   partyId?: string;
   message: {
-    type: 'media' | 'call' | 'text';
+    type: "media" | "call" | "text";
     data: string;
   };
 }
 
 export enum ChatMessageStatus {
-  created = 'created',
-  sent = 'sent',
-  delivered = 'delivered',
-  read = 'read',
+  created = "created",
+  sent = "sent",
+  delivered = "delivered",
+  read = "read",
 }
 
 export interface ChatMessageRes {
