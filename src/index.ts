@@ -15,7 +15,7 @@ import {
   listBookings,
 } from "./routes";
 
-import { getCookieData, processToken, generatePassword } from "./auth";
+import { getCookieData, processToken, generatePassword, verifyGoogleLogin } from "./auth";
 
 export default {
   async fetch(
@@ -72,6 +72,9 @@ export default {
       if (request.url.search("getbookings") > -1) {
         return listBookings(request, env);
       }
+      if(request.url.search("googleToken") > -1) {
+        return verifyGoogleLogin({request, env})
+      }
 
       const cookieRes = await getCookieData({ request, env });
 
@@ -83,9 +86,7 @@ export default {
         return new Response(r);
       }
 
-      const res = cookieRes
-        ? new Response(JSON.stringify(cookieRes))
-        : await processToken({ request, env });
+      const res = await processToken({ request, env });
 
       return res;
     } catch (err) {

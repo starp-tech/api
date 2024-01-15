@@ -117,13 +117,36 @@ export const pipeDBRequest = async (
     method: "POST",
     headers: {
       Authorization: `Basic ${hash}`,
-      "Content-Type": "application/json",
+      "Content-Type": "application/json"
     },
     body: JSON.stringify(body),
   };
 
   const response = await fetch(url, params);
+  const accessHost = "http://localhost:8080"
   let { readable, writable } = new TransformStream();
   response.body?.pipeTo(writable);
-  return new Response(readable, response);
+  // const headers = new Headers()
+  // headers.set(access,"http://localhost:8080")
+  // response.headers.entries()
+  console.info('response headers', JSON.stringify([...response.headers.entries()]))
+  const newResponse = new Response(readable);
+
+  const corsHeaders = {
+    "Access-Control-Allow-Origin": accessHost,
+    "Access-Control-Allow-Credentials":"true",
+    "Access-Control-Allow-Methods": "GET,HEAD,POST,OPTIONS",
+    "Access-Control-Max-Age": "86400",
+    "Vary": "Origin",
+    "Origin":accessHost,
+    "x-workers-hello":JSON.stringify([...response.headers.entries()])
+  };
+
+  (Object.keys(corsHeaders) as (keyof typeof corsHeaders)[]).map((key)=>{
+    newResponse.headers.delete(key)
+    newResponse.headers.set(key, corsHeaders[key])
+    return key
+  })
+  console.info('headers for pipe 1', JSON.stringify([...newResponse.headers.entries()]))
+  return newResponse;
 };
