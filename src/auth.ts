@@ -163,7 +163,6 @@ export const verifyGoogleLogin = async ({ request, env })  => {
   let u = new URL(request.url);
   let googleToken = u.searchParams.get("googleToken")
   try {
-    console.info("env.GOOGLE_API_KEY", env.GOOGLE_API_KEY)
     let decoded = await (await fetch(identityToolkitURL+env.GOOGLE_API_KEY,{
       method:"POST",
       body:JSON.stringify({
@@ -174,7 +173,11 @@ export const verifyGoogleLogin = async ({ request, env })  => {
       })
     })).json()
     console.info('decoded', JSON.stringify(decoded))
-    return new Response(JSON.stringify(decoded))
+    const expiresInDays = 10;
+    const newCookie = `${COOKIE_NAME}=${decoded.idToken}; SameSite=None; Secure; Expires=${new Date().setDate(new Date().getDate() + expiresInDays).valueOf()}`;
+    const headers = new Headers()
+    headers.set("Set-Cookie", newCookie);
+    return new Response(JSON.stringify(decoded), {headers})
   } catch(err) {
     console.error('verifyGoogleLogin error', err)
     return new Response(`'{"error":"${err.message}"}'`)
