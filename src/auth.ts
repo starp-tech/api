@@ -23,9 +23,15 @@ const getCookie = (cookieString: string, key: string) => {
 
 export const getCookieData = async ({ request, env }) => {
   const cookieString = request.headers.get("Cookie");
-  const authToken = getCookie(cookieString, COOKIE_NAME);
+  let u = new URL(request.url);
+  // console.info('searchParams token', u.searchParams.get("authToken"))
+  const paramToken = u.searchParams.get("authToken")
+  const authToken = paramToken && paramToken !== "null" ? paramToken : getCookie(cookieString, COOKIE_NAME);
 
-  if (!authToken) return null;
+  if (!authToken) {
+    console.info('no token')
+    return null;
+  }
   console.info('=get cookie data=')
   const data = await getTokenData(authToken);
 
@@ -92,8 +98,14 @@ export const processToken = async ({ request, env }) => {
   const cookieString = request.headers.get("Cookie");
   try {
     let u = new URL(request.url);
-    let authToken = u.searchParams.get("authToken") || getCookie(cookieString, COOKIE_NAME);;
-
+    // console.info('searchParams token', u.searchParams.get("authToken"))
+    const paramToken = u.searchParams.get("authToken")
+    const authToken = paramToken 
+      && paramToken !== "" 
+      && paramToken !== "null" 
+        ? paramToken : 
+          getCookie(cookieString, COOKIE_NAME);
+    
     if (!authToken || typeof authToken !== "string" || authToken.length < 5) {
       return new Response('{"error":"Token Invalid"}');
     }
@@ -105,28 +117,7 @@ export const processToken = async ({ request, env }) => {
       const newCookie = `${COOKIE_NAME}=${authToken}; SameSite=None; Secure; Expires=${new Date().setDate(new Date().getDate() + expiresInDays).valueOf()}`;
       const headers = new Headers()
       headers.set("Set-Cookie", newCookie);
-      headers.set('Access-Control-Allow-Origin', "http://localhost:8080")
-      console.info('headers', headers)
-      const res = new Response(JSON.stringify(payload), {headers});
-      // console.info('setCookie', newCookie)
-
-    const accessHost = "http://localhost:8080"
-    const corsHeaders = {
-      "Access-Control-Allow-Origin": accessHost,
-      "Access-Control-Allow-Credentials":"true",
-      "Access-Control-Allow-Methods": "GET,HEAD,POST,OPTIONS",
-      "Access-Control-Max-Age": "86400",
-      "Vary": "Origin",
-      "Origin":accessHost,
-      "x-workers-hello":"hello"
-    };
-
-    (Object.keys(corsHeaders) as (keyof typeof corsHeaders)[]).map((key)=>{
-      res.headers.delete(key)
-      res.headers.set(key, corsHeaders[key])
-      return key
-    })
-      return res;
+      return new Response(JSON.stringify(payload), {headers});
     } else return new Response(invalidTokenError);
   } catch (err) {
     console.error("validate token error", err);

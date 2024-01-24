@@ -40,7 +40,7 @@ export const pipeInstantPartyData = async (request: Request, env: Env) => {
   return pipeDBRequest(env, sql, args);
 };
 
-export const partyList = async (request: Request, env: Env) =>
+export const partyList = async (request: Request, env: Env) => 
   getFolderContent(env, pipeDBRequest, publicPartyPref, "starpy2");
 
 export const partyMediaList = async (request: Request, env: Env) => {
